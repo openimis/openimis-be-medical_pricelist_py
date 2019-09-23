@@ -13,11 +13,11 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='PricelistItem',
+            name='ItemPricelist',
             fields=[
                 ('id', models.AutoField(db_column='PLItemID', primary_key=True, serialize=False)),
                 ('item_name', models.CharField(db_column='PLItemName', max_length=100)),
-                ('pricelist_date', core.fields.DateTimeField(db_column='DatePL')),
+                ('pricelist_date', core.fields.DateField(db_column='DatePL')),
                 ('validity_from', core.fields.DateTimeField(db_column='ValidityFrom')),
                 ('validity_to', core.fields.DateTimeField(blank=True, db_column='ValidityTo', null=True)),
                 ('legacy_id', models.IntegerField(blank=True, db_column='LegacyID', null=True)),
@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='PricelistItemDetail',
+            name='ItemPricelistDetail',
             fields=[
                 ('id', models.AutoField(db_column='PLItemDetailID', primary_key=True, serialize=False)),
                 ('price_overrule', models.DecimalField(blank=True, db_column='PriceOverule', decimal_places=2, max_digits=18, null=True)),
@@ -44,11 +44,11 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='PricelistService',
+            name='ServicePricelist',
             fields=[
                 ('id', models.AutoField(db_column='PLServiceID', primary_key=True, serialize=False)),
                 ('service_name', models.CharField(db_column='PLServName', max_length=100)),
-                ('pricelist_date', core.fields.DateTimeField(db_column='DatePL')),
+                ('pricelist_date', core.fields.DateField(db_column='DatePL')),
                 ('validity_from', core.fields.DateTimeField(db_column='ValidityFrom')),
                 ('validity_to', core.fields.DateTimeField(blank=True, db_column='ValidityTo', null=True)),
                 ('legacy_id', models.IntegerField(blank=True, db_column='LegacyID', null=True)),
@@ -60,7 +60,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='PricelistServiceDetail',
+            name='ServicePricelistDetail',
             fields=[
                 ('id', models.AutoField(db_column='PLServiceDetailID', primary_key=True, serialize=False)),
                 ('price_overrule', models.DecimalField(blank=True, db_column='PriceOverule', decimal_places=2, max_digits=18, null=True)),

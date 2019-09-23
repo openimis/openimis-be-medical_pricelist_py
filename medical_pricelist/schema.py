@@ -2,12 +2,12 @@ import graphene
 from core import ExtendedConnection
 from graphene_django import DjangoObjectType
 
-from .models import PricelistItem, PricelistItemDetail, PricelistService, PricelistServiceDetail
+from .models import ItemPricelist, ItemPricelistDetail, ServicePricelist, ServicePricelistDetail
 
 
-class PricelistItemGQLType(DjangoObjectType):
+class ItemPricelistGQLType(DjangoObjectType):
     class Meta:
-        model = PricelistItem
+        model = ItemPricelist
         interfaces = (graphene.relay.Node,)
         filter_fields = {
             'id': ['exact'],
@@ -16,9 +16,9 @@ class PricelistItemGQLType(DjangoObjectType):
         connection_class = ExtendedConnection
 
 
-class PricelistItemDetailGQLType(DjangoObjectType):
+class ItemPricelistDetailGQLType(DjangoObjectType):
     class Meta:
-        model = PricelistItemDetail
+        model = ItemPricelistDetail
         interfaces = (graphene.relay.Node,)
         filter_fields = {
             'id': ['exact'],
@@ -26,9 +26,9 @@ class PricelistItemDetailGQLType(DjangoObjectType):
         connection_class = ExtendedConnection
 
 
-class PricelistServiceGQLType(DjangoObjectType):
+class ServicePricelistGQLType(DjangoObjectType):
     class Meta:
-        model = PricelistService
+        model = ServicePricelist
         interfaces = (graphene.relay.Node,)
         filter_fields = {
             'id': ['exact'],
@@ -37,9 +37,9 @@ class PricelistServiceGQLType(DjangoObjectType):
         connection_class = ExtendedConnection
 
 
-class PricelistServiceDetailGQLType(DjangoObjectType):
+class ServicePricelistDetailGQLType(DjangoObjectType):
     class Meta:
-        model = PricelistServiceDetail
+        model = ServicePricelistDetail
         interfaces = (graphene.relay.Node,)
         filter_fields = {
             'id': ['exact'],

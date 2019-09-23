@@ -11,7 +11,7 @@ It is dedicated to be deployed as a module of [openimis-be_py](https://github.co
 
 ## Content
 Current version provides the following ORM mapping:
-* tblPLItems > PricelistItem
-* tblPLItemsDetail > PricelistItemDetail
-* tblPLServices > PricelistService
-* tblPLServicesDetail > PricelistServiceDetail
+* tblPLItems > ItemPricelist
+* tblPLItemsDetail > ItemPricelistDetail
+* tblPLServices > ServicePricelist
+* tblPLServicesDetail > ServicePricelistDetail
