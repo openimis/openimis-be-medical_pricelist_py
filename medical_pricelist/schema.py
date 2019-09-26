@@ -1,7 +1,6 @@
 import graphene
-from core import ExtendedConnection
+from core import filter_validity, ExtendedConnection
 from graphene_django import DjangoObjectType
-
 from .models import ItemPricelist, ItemPricelistDetail, ServicePricelist, ServicePricelistDetail
 
 
@@ -47,5 +46,25 @@ class ServicePricelistDetailGQLType(DjangoObjectType):
         connection_class = ExtendedConnection
 
 
+class PriceCompactGQLType(graphene.ObjectType):
+    id = graphene.Int()
+    price_overrule = graphene.Decimal()
+
+
+class PricelistsGQLType(graphene.ObjectType):
+    services = graphene.List(PriceCompactGQLType)
+    items = graphene.List(PriceCompactGQLType)
+
+
 class Query(graphene.ObjectType):
-    pass
+    pricelists = graphene.Field(
+        PricelistsGQLType,
+        service_pricelist_id=graphene.Int(),
+        item_pricelist_id=graphene.Int()
+    )
+
+    def resolve_pricelists(self, info, **kwargs):
+        return PricelistsGQLType(
+            services=[],
+            items=[]
+        )
