@@ -1,6 +1,7 @@
 import graphene
 from core import filter_validity, ExtendedConnection
 from graphene_django import DjangoObjectType
+from django.db.models import Q
 from .models import ItemPricelist, ItemPricelistDetail, ServicePricelist, ServicePricelistDetail
 
 
@@ -56,6 +57,19 @@ class PricelistsGQLType(graphene.ObjectType):
     items = graphene.List(PriceCompactGQLType)
 
 
+def prices(element, parent, child, id, **kwargs):
+    list_id = kwargs.get(id)
+    if list_id is None:
+        return []
+    list = element.objects.filter(
+        Q(**{parent: list_id, 'price_overrule__isnull': False}),
+        *filter_validity(**kwargs)
+    )
+    return [PriceCompactGQLType(id=getattr(e, child),
+                                price_overrule=e.price_overrule)
+            for e in list.all()]
+
+
 class Query(graphene.ObjectType):
     pricelists = graphene.Field(
         PricelistsGQLType,
@@ -65,6 +79,12 @@ class Query(graphene.ObjectType):
 
     def resolve_pricelists(self, info, **kwargs):
         return PricelistsGQLType(
-            services=[],
-            items=[]
+            services=prices(ServicePricelistDetail,
+                            'service_pricelist', 'service_id',
+                            'service_pricelist_id',
+                            **kwargs),
+            items=prices(ItemPricelistDetail,
+                         'item_pricelist', 'item_id',
+                         'item_pricelist_id',
+                         **kwargs)
         )
