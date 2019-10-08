@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from core import fields
 from medical import models as medical_models
@@ -5,6 +6,7 @@ from medical import models as medical_models
 
 class ItemPricelist(models.Model):
     id = models.AutoField(db_column='PLItemID', primary_key=True)
+    uuid = models.UUIDField(db_column='PLItemUUID', default=uuid.uuid4, unique = True)
     item_name = models.CharField(db_column='PLItemName', max_length=100)
     pricelist_date = fields.DateField(db_column='DatePL')
     location = models.ForeignKey("location.Location", db_column="LocationId", blank=True, null=True,
@@ -40,6 +42,7 @@ class ItemPricelistDetail(models.Model):
 
 class ServicePricelist(models.Model):
     id = models.AutoField(db_column='PLServiceID', primary_key=True)
+    uuid = models.UUIDField(db_column='PLServiceUUID', default=uuid.uuid4, unique = True)
     service_name = models.CharField(db_column='PLServName', max_length=100)
     pricelist_date = fields.DateField(db_column='DatePL')
     location = models.ForeignKey("location.Location", db_column="LocationId", blank=True, null=True,

@@ -11,6 +11,7 @@ class ItemPricelistGQLType(DjangoObjectType):
         interfaces = (graphene.relay.Node,)
         filter_fields = {
             'id': ['exact'],
+            'uuid': ['exact'],
             'item_name': ['exact', 'icontains', 'istartswith'],
         }
         connection_class = ExtendedConnection
@@ -32,6 +33,7 @@ class ServicePricelistGQLType(DjangoObjectType):
         interfaces = (graphene.relay.Node,)
         filter_fields = {
             'id': ['exact'],
+            'uuid': ['exact'],
             'service_name': ['exact', 'icontains', 'istartswith'],
         }
         connection_class = ExtendedConnection
