@@ -2,6 +2,7 @@ import graphene
 from core import filter_validity, ExtendedConnection
 from graphene_django import DjangoObjectType
 from django.db.models import Q
+from .apps import MedicalPricelistConfig
 from .models import ItemPricelist, ItemPricelistDetail, ServicePricelist, ServicePricelistDetail
 
 
@@ -80,6 +81,9 @@ class Query(graphene.ObjectType):
     )
 
     def resolve_pricelists(self, info, **kwargs):
+        if not info.context.user.has_perms(
+                MedicalPricelistConfig.gql_query_pricelists_perms):
+            raise PermissionDenied(_("unauthorized"))
         return PricelistsGQLType(
             services=prices(ServicePricelistDetail,
                             'service_pricelist', 'service_id',

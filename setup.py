@@ -9,7 +9,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='openimis-be-medical_pricelist',
-    version='0.0.5',
+    version='1.0.1',
     packages=find_packages(),
     include_package_data=True,
     license='GNU AGPL v3',
@@ -22,6 +22,7 @@ setup(
         'django',
         'django-db-signals',
         'djangorestframework',
+        'openimis-be-medical',
     ],
     classifiers=[
         'Environment :: Web Environment',
@@ -31,7 +32,6 @@ setup(
         'License :: OSI Approved :: GNU Affero General Public License v3',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
     ],
