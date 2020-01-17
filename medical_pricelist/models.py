@@ -4,10 +4,10 @@ from core import fields
 from medical import models as medical_models
 
 
-class ItemPricelist(models.Model):
+class ItemsPricelist(models.Model):
     id = models.AutoField(db_column='PLItemID', primary_key=True)
     uuid = models.CharField(db_column='PLItemUUID', max_length=36, default=uuid.uuid4, unique = True)
-    item_name = models.CharField(db_column='PLItemName', max_length=100)
+    name = models.CharField(db_column='PLItemName', max_length=100)
     pricelist_date = fields.DateField(db_column='DatePL')
     location = models.ForeignKey("location.Location", db_column="LocationId", blank=True, null=True,
                                  on_delete=models.DO_NOTHING, related_name='+')
@@ -22,9 +22,9 @@ class ItemPricelist(models.Model):
         db_table = 'tblPLItems'
 
 
-class ItemPricelistDetail(models.Model):
+class ItemsPricelistDetail(models.Model):
     id = models.AutoField(db_column='PLItemDetailID', primary_key=True)
-    item_pricelist = models.ForeignKey(ItemPricelist, on_delete=models.DO_NOTHING, db_column="PLItemID",
+    items_pricelist = models.ForeignKey(ItemsPricelist, on_delete=models.DO_NOTHING, db_column="PLItemID",
                                        related_name='details')
     item = models.ForeignKey(medical_models.Item, db_column="ItemID", on_delete=models.DO_NOTHING,
                              related_name='pricelist_details')
@@ -40,10 +40,10 @@ class ItemPricelistDetail(models.Model):
         db_table = 'tblPLItemsDetail'
 
 
-class ServicePricelist(models.Model):
+class ServicesPricelist(models.Model):
     id = models.AutoField(db_column='PLServiceID', primary_key=True)
     uuid = models.CharField(db_column='PLServiceUUID', max_length=36, default=uuid.uuid4, unique = True)
-    service_name = models.CharField(db_column='PLServName', max_length=100)
+    name = models.CharField(db_column='PLServName', max_length=100)
     pricelist_date = fields.DateField(db_column='DatePL')
     location = models.ForeignKey("location.Location", db_column="LocationId", blank=True, null=True,
                                  on_delete=models.DO_NOTHING)
@@ -58,9 +58,9 @@ class ServicePricelist(models.Model):
         db_table = 'tblPLServices'
 
 
-class ServicePricelistDetail(models.Model):
+class ServicesPricelistDetail(models.Model):
     id = models.AutoField(db_column='PLServiceDetailID', primary_key=True)
-    service_pricelist = models.ForeignKey(ServicePricelist, on_delete=models.DO_NOTHING, db_column="PLServiceID",
+    services_pricelist = models.ForeignKey(ServicesPricelist, on_delete=models.DO_NOTHING, db_column="PLServiceID",
                                           related_name='details')
     service = models.ForeignKey(medical_models.Service, db_column="ServiceID", on_delete=models.DO_NOTHING,
                                 related_name='pricelist_details')

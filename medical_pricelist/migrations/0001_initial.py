@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='ItemPricelist',
+            name='ItemsPricelist',
             fields=[
                 ('id', models.AutoField(db_column='PLItemID', primary_key=True, serialize=False)),
                 ('item_name', models.CharField(db_column='PLItemName', max_length=100)),
@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='ItemPricelistDetail',
+            name='ItemsPricelistDetail',
             fields=[
                 ('id', models.AutoField(db_column='PLItemDetailID', primary_key=True, serialize=False)),
                 ('price_overrule', models.DecimalField(blank=True, db_column='PriceOverule', decimal_places=2, max_digits=18, null=True)),
@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='ServicePricelist',
+            name='ServicesPricelist',
             fields=[
                 ('id', models.AutoField(db_column='PLServiceID', primary_key=True, serialize=False)),
                 ('service_name', models.CharField(db_column='PLServName', max_length=100)),
@@ -60,7 +60,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='ServicePricelistDetail',
+            name='ServicesPricelistDetail',
             fields=[
                 ('id', models.AutoField(db_column='PLServiceDetailID', primary_key=True, serialize=False)),
                 ('price_overrule', models.DecimalField(blank=True, db_column='PriceOverule', decimal_places=2, max_digits=18, null=True)),
