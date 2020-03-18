@@ -17,6 +17,7 @@ class ItemsPricelistGQLType(DjangoObjectType):
             'id': ['exact'],
             'uuid': ['exact'],
             'name': ['exact', 'icontains', 'istartswith'],
+            'location': ['isnull'],
             **prefix_filterset("location__", LocationGQLType._meta.filter_fields),
         }
         connection_class = ExtendedConnection
@@ -40,6 +41,7 @@ class ServicesPricelistGQLType(DjangoObjectType):
             'id': ['exact'],
             'uuid': ['exact'],
             'name': ['exact', 'icontains', 'istartswith'],
+            'location': ['isnull'],
             **prefix_filterset("location__", LocationGQLType._meta.filter_fields),
         }
         connection_class = ExtendedConnection
