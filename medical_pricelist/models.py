@@ -22,7 +22,25 @@ class ItemsPricelist(models.Model):
         db_table = 'tblPLItems'
 
 
-class ItemsPricelistDetail(models.Model):
+class ItemsOrServicesPricelistDetailManager(models.Manager):
+    # def __init__(self, model_prefix):
+    #     self._model_prefix = model_prefix
+
+    def filter(self, *args, **kwargs):
+        keys = [x for x in kwargs if "itemsvc" in x]
+        for key in keys:
+            new_key = key.replace("itemsvc", self.model.model_prefix)
+            kwargs[new_key] = kwargs.pop(key)
+        return super(ItemsOrServicesPricelistDetailManager, self).filter(*args, **kwargs)
+
+
+class ItemsOrServicesPricelistDetail:
+    objects = ItemsOrServicesPricelistDetailManager()
+    class Meta:
+        abstract = True
+
+
+class ItemsPricelistDetail(models.Model, ItemsOrServicesPricelistDetail):
     id = models.AutoField(db_column='PLItemDetailID', primary_key=True)
     items_pricelist = models.ForeignKey(ItemsPricelist, on_delete=models.DO_NOTHING, db_column="PLItemID",
                                        related_name='details')
@@ -34,6 +52,8 @@ class ItemsPricelistDetail(models.Model):
     legacy_id = models.IntegerField(db_column='LegacyID', blank=True, null=True)
     audit_user_id = models.IntegerField(db_column='AuditUserID')
     # row_id = models.BinaryField(db_column='RowID', blank=True, null=True)
+    model_prefix = "item"
+    objects = ItemsOrServicesPricelistDetailManager()
 
     class Meta:
         managed = False
@@ -42,7 +62,7 @@ class ItemsPricelistDetail(models.Model):
 
 class ServicesPricelist(models.Model):
     id = models.AutoField(db_column='PLServiceID', primary_key=True)
-    uuid = models.CharField(db_column='PLServiceUUID', max_length=36, default=uuid.uuid4, unique = True)
+    uuid = models.CharField(db_column='PLServiceUUID', max_length=36, default=uuid.uuid4, unique=True)
     name = models.CharField(db_column='PLServName', max_length=100)
     pricelist_date = fields.DateField(db_column='DatePL')
     location = models.ForeignKey("location.Location", db_column="LocationId", blank=True, null=True,
@@ -58,7 +78,7 @@ class ServicesPricelist(models.Model):
         db_table = 'tblPLServices'
 
 
-class ServicesPricelistDetail(models.Model):
+class ServicesPricelistDetail(models.Model, ItemsOrServicesPricelistDetail):
     id = models.AutoField(db_column='PLServiceDetailID', primary_key=True)
     services_pricelist = models.ForeignKey(ServicesPricelist, on_delete=models.DO_NOTHING, db_column="PLServiceID",
                                           related_name='details')
@@ -70,6 +90,8 @@ class ServicesPricelistDetail(models.Model):
     legacy_id = models.IntegerField(db_column='LegacyID', blank=True, null=True)
     audit_user_id = models.IntegerField(db_column='AuditUserID')
     # row_id = models.BinaryField(db_column='RowID', blank=True, null=True)
+    model_prefix = "service"
+    objects = ItemsOrServicesPricelistDetailManager()
 
     class Meta:
         managed = False
