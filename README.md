@@ -10,10 +10,10 @@ It is dedicated to be deployed as a module of [openimis-be_py](https://github.co
 [![Test Coverage](https://img.shields.io/codeclimate/coverage/openimis/openimis-be-medical_py.svg)](https://codeclimate.com/github/openimis/openimis-be-medical_py)
 
 ## ORM mapping:
-* tblPLItems > ItemPricelist
-* tblPLItemsDetail > ItemPricelistDetail
-* tblPLServices > ServicePricelist
-* tblPLServicesDetail > ServicePricelistDetail
+* tblPLItems > ItemsPricelist
+* tblPLItemsDetail > ItemsPricelistDetail
+* tblPLServices > ServicesPricelist
+* tblPLServicesDetail > ServicesPricelistDetail
 
 ## Listened Django Signals
 None

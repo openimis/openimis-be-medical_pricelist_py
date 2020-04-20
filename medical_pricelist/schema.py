@@ -1,26 +1,31 @@
 import graphene
-from core import filter_validity, ExtendedConnection
+from core import prefix_filterset, filter_validity, ExtendedConnection
+from django.conf import settings
 from graphene_django import DjangoObjectType
+from graphene_django.filter import DjangoFilterConnectionField
 from django.db.models import Q
 from .apps import MedicalPricelistConfig
-from .models import ItemPricelist, ItemPricelistDetail, ServicePricelist, ServicePricelistDetail
+from .models import ItemsPricelist, ItemsPricelistDetail, ServicesPricelist, ServicesPricelistDetail
+from location.schema import LocationGQLType
 
 
-class ItemPricelistGQLType(DjangoObjectType):
+class ItemsPricelistGQLType(DjangoObjectType):
     class Meta:
-        model = ItemPricelist
+        model = ItemsPricelist
         interfaces = (graphene.relay.Node,)
         filter_fields = {
             'id': ['exact'],
             'uuid': ['exact'],
-            'item_name': ['exact', 'icontains', 'istartswith'],
+            'name': ['exact', 'icontains', 'istartswith'],
+            'location': ['isnull'],
+            **prefix_filterset("location__", LocationGQLType._meta.filter_fields),
         }
         connection_class = ExtendedConnection
 
 
-class ItemPricelistDetailGQLType(DjangoObjectType):
+class ItemsPricelistDetailGQLType(DjangoObjectType):
     class Meta:
-        model = ItemPricelistDetail
+        model = ItemsPricelistDetail
         interfaces = (graphene.relay.Node,)
         filter_fields = {
             'id': ['exact'],
@@ -28,21 +33,23 @@ class ItemPricelistDetailGQLType(DjangoObjectType):
         connection_class = ExtendedConnection
 
 
-class ServicePricelistGQLType(DjangoObjectType):
+class ServicesPricelistGQLType(DjangoObjectType):
     class Meta:
-        model = ServicePricelist
+        model = ServicesPricelist
         interfaces = (graphene.relay.Node,)
         filter_fields = {
             'id': ['exact'],
             'uuid': ['exact'],
-            'service_name': ['exact', 'icontains', 'istartswith'],
+            'name': ['exact', 'icontains', 'istartswith'],
+            'location': ['isnull'],
+            **prefix_filterset("location__", LocationGQLType._meta.filter_fields),
         }
         connection_class = ExtendedConnection
 
 
-class ServicePricelistDetailGQLType(DjangoObjectType):
+class ServicesPricelistDetailGQLType(DjangoObjectType):
     class Meta:
-        model = ServicePricelistDetail
+        model = ServicesPricelistDetail
         interfaces = (graphene.relay.Node,)
         filter_fields = {
             'id': ['exact'],
@@ -76,8 +83,16 @@ def prices(element, parent, child, id, **kwargs):
 class Query(graphene.ObjectType):
     pricelists = graphene.Field(
         PricelistsGQLType,
-        service_pricelist_id=graphene.Int(),
-        item_pricelist_id=graphene.Int()
+        services_pricelist_id=graphene.Int(),
+        items_pricelist_id=graphene.Int()
+    )
+    services_pricelists = DjangoFilterConnectionField(
+        ServicesPricelistGQLType,
+        location_uuid=graphene.String(),
+    )
+    items_pricelists = DjangoFilterConnectionField(
+        ItemsPricelistGQLType,
+        location_uuid=graphene.String(),
     )
 
     def resolve_pricelists(self, info, **kwargs):
@@ -85,12 +100,30 @@ class Query(graphene.ObjectType):
                 MedicalPricelistConfig.gql_query_pricelists_perms):
             raise PermissionDenied(_("unauthorized"))
         return PricelistsGQLType(
-            services=prices(ServicePricelistDetail,
-                            'service_pricelist', 'service_id',
-                            'service_pricelist_id',
+            services=prices(ServicesPricelistDetail,
+                            'services_pricelist', 'service_id',
+                            'services_pricelist_id',
                             **kwargs),
-            items=prices(ItemPricelistDetail,
-                         'item_pricelist', 'item_id',
-                         'item_pricelist_id',
+            items=prices(ItemsPricelistDetail,
+                         'items_pricelist', 'item_id',
+                         'items_pricelist_id',
                          **kwargs)
         )
+
+    def resolve_services_pricelists(self, info, **kwargs):
+        filters = [*filter_validity(**kwargs)]
+        location_uuid = kwargs.get('location__uuid')
+        if location_uuid is None:
+            filters += [Q(location__isnull=True)]
+        else:
+            filters += [Q(location__uuid=location_uuid)]
+        return ServicesPricelist.objects.filter(*filters)
+
+    def resolve_items_pricelists(self, info, **kwargs):
+        filters = [*filter_validity(**kwargs)]
+        location_uuid = kwargs.get('location__uuid')
+        if location_uuid is None:
+            filters += [Q(location__isnull=True)]
+        else:
+            filters += [Q(location__uuid=location_uuid)]
+        return ItemsPricelist.objects.filter(*filters)
