@@ -59,7 +59,7 @@ class ServicesPricelistDetailGQLType(DjangoObjectType):
 
 class PriceCompactGQLType(graphene.ObjectType):
     id = graphene.Int()
-    price_overrule = graphene.Decimal()
+    p = graphene.Decimal()
 
 
 class PricelistsGQLType(graphene.ObjectType):
@@ -72,11 +72,11 @@ def prices(element, parent, child, id, **kwargs):
     if list_id is None:
         return []
     list = element.objects.filter(
-        Q(**{parent: list_id, 'price_overrule__isnull': False}),
+        Q(**{parent: list_id}),
         *filter_validity(**kwargs)
     )
     return [PriceCompactGQLType(id=getattr(e, child),
-                                price_overrule=e.price_overrule)
+                                p=e.price_overrule)
             for e in list.all()]
 
 
