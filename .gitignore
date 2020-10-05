@@ -1,6 +1,9 @@
 **/venv
 **/.env
+**/.idea
 **/__pycache__
 build
 dist
 *.egg-info
+**/.vscode
+locale/__init__.py
