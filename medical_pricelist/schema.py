@@ -1,6 +1,5 @@
 import graphene
 from core import prefix_filterset, filter_validity, ExtendedConnection
-from django.conf import settings
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from django.db.models import Q
