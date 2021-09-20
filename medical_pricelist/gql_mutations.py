@@ -25,7 +25,7 @@ class DetailPriceOverruleType(graphene.InputObjectType):
 class ItemsOrServicesPricelistInputType(OpenIMISMutation.Input):
     name = graphene.String(required=True)
     pricelist_date = graphene.Date(required=True)
-    location_id = graphene.UUID(required=True)
+    location_id = graphene.UUID()
     added_details = graphene.List(graphene.NonNull(graphene.UUID))
     removed_details = graphene.List(graphene.NonNull(graphene.UUID))
     price_overrules = graphene.List(graphene.NonNull(DetailPriceOverruleType))
@@ -47,7 +47,10 @@ def create_or_update_pricelist(
         data["audit_user_id"] = user.id_for_audit
 
     pricelist_uuid = data.pop("uuid", None)
-    data["location"] = Location.objects.get(uuid=data.pop("location_id"))
+    location_uuid = data.pop("location_id", None)
+    data["location"] = (
+        Location.objects.get(uuid=location_uuid) if location_uuid else None
+    )
 
     if pricelist_uuid:
         pricelist = pricelist_model.objects.get(uuid=pricelist_uuid)
