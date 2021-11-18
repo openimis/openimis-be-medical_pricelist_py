@@ -124,15 +124,21 @@ class Query(graphene.ObjectType):
         location_uuid=graphene.String(),
     )
 
-    def resolve_pricelists(self, info, **kwargs):
-        if kwargs.get("services_pricelist_id") and not info.context.user.has_perms(
-            MedicalPricelistConfig.gql_query_pricelists_medical_services_perms
-        ):
-            raise PermissionDenied(_("unauthorized"))
-        if kwargs.get("items_pricelist_id") and not info.context.user.has_perms(
-            MedicalPricelistConfig.gql_query_pricelists_medical_items_perms
-        ):
-            raise PermissionDenied(_("unauthorized"))
+    def resolve_pricelists(self, info, services_pricelist_id=None, items_pricelist_id=None, **kwargs):
+        # When the caller requests a list of pricelists, they're filtered downstream. When they request a specific PL,
+        # and don't have the right to browse all pricelists, we need to verify that they do have access to that PL
+        if services_pricelist_id or items_pricelist_id:
+            hf = info.context.user.get_health_facility()
+            if services_pricelist_id and not info.context.user.has_perms(
+                MedicalPricelistConfig.gql_query_pricelists_medical_services_perms
+            ):
+                if hf and hf.services_pricelist_id != services_pricelist_id:
+                    raise PermissionDenied(_("unauthorized"))
+            if items_pricelist_id and not info.context.user.has_perms(
+                MedicalPricelistConfig.gql_query_pricelists_medical_items_perms
+            ):
+                if hf and hf.items_pricelist_id != items_pricelist_id:
+                    raise PermissionDenied(_("unauthorized"))
 
         return PricelistsGQLType(
             services=prices(
