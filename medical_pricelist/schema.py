@@ -23,6 +23,9 @@ from .gql_mutations import (
 )
 from location.schema import LocationGQLType
 import graphene_django_optimizer as gql_optimizer
+import logging
+
+logger = logging.getLogger(__file__)
 
 
 ServiceGQLType.fields = ["id", "name"]
@@ -96,14 +99,14 @@ class PricelistsGQLType(graphene.ObjectType):
     items = graphene.List(PriceCompactGQLType)
 
 
-def prices(element, parent, child, id, **kwargs):
-    list_id = kwargs.get(id)
+def prices(element, parent, child, element_id, **kwargs):
+    list_id = kwargs.get(element_id)
     if list_id is None:
         return []
-    list = element.objects.filter(Q(**{parent: list_id}), *filter_validity(**kwargs))
+    element_list = element.objects.filter(Q(**{parent: list_id}), *filter_validity(**kwargs))
     return [
         PriceCompactGQLType(id=getattr(e, child), p=e.price_overrule)
-        for e in list.all()
+        for e in element_list.all()
     ]
 
 
@@ -127,6 +130,8 @@ class Query(graphene.ObjectType):
     def resolve_pricelists(self, info, services_pricelist_id=None, items_pricelist_id=None, **kwargs):
         # When the caller requests a list of pricelists, they're filtered downstream. When they request a specific PL,
         # and don't have the right to browse all pricelists, we need to verify that they do have access to that PL
+        if info.context.user.is_anonymous:
+            raise PermissionDenied(_("unauthorized"))
         if services_pricelist_id or items_pricelist_id:
             hf = info.context.user.get_health_facility()
             if services_pricelist_id and not info.context.user.has_perms(
@@ -146,14 +151,14 @@ class Query(graphene.ObjectType):
                 "services_pricelist",
                 "service_id",
                 "services_pricelist_id",
-                **kwargs
+                services_pricelist_id=services_pricelist_id,
             ),
             items=prices(
                 ItemsPricelistDetail,
                 "items_pricelist",
                 "item_id",
                 "items_pricelist_id",
-                **kwargs
+                items_pricelist_id=items_pricelist_id,
             ),
         )
 
