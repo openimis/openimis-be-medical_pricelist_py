@@ -5,6 +5,7 @@ from django.utils.translation import gettext as _
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from django.db.models import Q
+from location.models import Location
 from .apps import MedicalPricelistConfig
 from medical.schema import ServiceGQLType
 from .models import (
@@ -103,7 +104,8 @@ def prices(element, parent, child, element_id, **kwargs):
     list_id = kwargs.get(element_id)
     if list_id is None:
         return []
-    element_list = element.objects.filter(Q(**{parent: list_id}), *filter_validity(**kwargs))
+    element_list = element.objects.filter(
+        Q(**{parent: list_id}), *filter_validity(**kwargs))
     return [
         PriceCompactGQLType(id=getattr(e, child), p=e.price_overrule)
         for e in element_list.all()
@@ -179,6 +181,11 @@ class Query(graphene.ObjectType):
                 | Q(location__parent__uuid=location_uuid)
             ]
         query = ServicesPricelist.objects.filter(*filters).order_by("name")
+
+        # Filter according to the user location
+        query = query.filter(
+            Location.build_user_location_filter_query(info.context.user._u))
+
         return gql_optimizer.query(query.all(), info)
 
     def resolve_items_pricelists(self, info, **kwargs):
@@ -197,7 +204,13 @@ class Query(graphene.ObjectType):
                 Q(location__uuid=location_uuid)
                 | Q(location__parent__uuid=location_uuid)
             ]
+
         query = ItemsPricelist.objects.filter(*filters).order_by("name")
+
+        # Filter according to the user location
+        query = query.filter(
+            Location.build_user_location_filter_query(info.context.user._u))
+
         return gql_optimizer.query(query.all(), info)
 
 
