@@ -174,11 +174,13 @@ class Query(graphene.ObjectType):
         if not show_history:
             filters = [*filter_validity(**kwargs)]
 
-        location_uuid = kwargs.get("location__uuid")
+        location_uuid = kwargs.get("location_uuid")
         if location_uuid is not None:
+            parent_location = Location.objects.filter(uuid=location_uuid).first().parent
             filters += [
                 Q(location__uuid=location_uuid)
-                | Q(location__parent__uuid=location_uuid)
+                | Q(location=parent_location)
+                | Q(location=None)
             ]
         query = ServicesPricelist.objects.filter(*filters).order_by("name")
 
@@ -198,11 +200,13 @@ class Query(graphene.ObjectType):
         if not show_history:
             filters = [*filter_validity(**kwargs)]
 
-        location_uuid = kwargs.get("location__uuid")
+        location_uuid = kwargs.get("location_uuid")
         if location_uuid is not None:
+            parent_location = Location.objects.filter(uuid=location_uuid).first().parent
             filters += [
                 Q(location__uuid=location_uuid)
-                | Q(location__parent__uuid=location_uuid)
+                | Q(location=parent_location)
+                | Q(location=None)
             ]
 
         query = ItemsPricelist.objects.filter(*filters).order_by("name")
