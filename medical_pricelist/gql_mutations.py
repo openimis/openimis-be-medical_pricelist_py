@@ -1,3 +1,4 @@
+import datetime
 from gettext import gettext as _
 import graphene
 from core.schema import OpenIMISMutation
@@ -63,7 +64,8 @@ def create_or_update_pricelist(
     if added_details is not None:
         for uuid in added_details:
             kwargs = {
-                "validity_to": None,  # We want to keep the history of items/services present in a pricelist
+                # We want to keep the history of items/services present in a pricelist
+                "validity_to": None,
                 detail_model.pricelist_field: pricelist,
                 f"{detail_model.model_prefix}__uuid": uuid,
             }
@@ -92,6 +94,10 @@ def create_or_update_pricelist(
                 itemsvc__uuid=overrule["uuid"],
                 validity_to=None,
             ).get()
+            # Save history
+            if detail:
+                detail.save_history()
+            detail.validity_from = datetime.datetime.now()
             detail.price_overrule = overrule["price"]
             detail.save()
 
