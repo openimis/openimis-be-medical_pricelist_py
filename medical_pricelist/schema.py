@@ -25,6 +25,7 @@ from .gql_mutations import (
 from location.schema import LocationGQLType
 import graphene_django_optimizer as gql_optimizer
 import logging
+from services import check_unique_name_items_pricelist, check_unique_name_services_pricelist
 
 logger = logging.getLogger(__file__)
 
@@ -128,6 +129,16 @@ class Query(graphene.ObjectType):
         show_history=graphene.Boolean(),
         location_uuid=graphene.String(),
     )
+    validate_items_pricelist_name = graphene.Field(
+        graphene.Boolean,
+        items_pricelist_name=graphene.String(required=True),
+        description="Checks that the specified items pricelist name is unique."
+    )
+    validate_services_pricelist_name = graphene.Field(
+        graphene.Boolean,
+        services_pricelist_name=graphene.String(required=True),
+        description="Checks that the specified services pricelist name is unique."
+    )
 
     def resolve_pricelists(self, info, services_pricelist_id=None, items_pricelist_id=None, **kwargs):
         # When the caller requests a list of pricelists, they're filtered downstream. When they request a specific PL,
@@ -216,6 +227,15 @@ class Query(graphene.ObjectType):
             Location.build_user_location_filter_query(info.context.user._u))
 
         return gql_optimizer.query(query.all(), info)
+
+
+    def resolve_validate_services_pricelist_name(self, info, **kwargs):
+        errors = check_unique_name_services_pricelist(name=kwargs['services_pricelist_name'])
+        return False if errors else True
+
+    def resolve_validate_items_pricelist_name(self, info, **kwargs):
+        errors = check_unique_name_items_pricelist(name=kwargs['items_pricelist_name'])
+        return False if errors else True
 
 
 class Mutation(graphene.ObjectType):

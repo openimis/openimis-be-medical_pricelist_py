@@ -13,7 +13,7 @@ from .models import (
     ServicesPricelistMutation,
     ItemsPricelistMutation,
 )
-from .services import set_pricelist_deleted
+from .services import set_pricelist_deleted, check_unique_name_items_pricelist, check_unique_name_services_pricelist
 from medical.models import Service, Item
 from location.models import Location
 
@@ -145,6 +145,9 @@ class CreateServicesPricelistMutation(CreateOrUpdateItemsOrServicesPricelistMuta
 
     @classmethod
     def async_mutate(cls, user, **data):
+        if check_unique_name_services_pricelist(data.get('name')):
+            raise ValidationError(
+                _("mutation.pl_name_duplicated"))
         try:
             cls.do_mutate(
                 MedicalPricelistConfig.gql_mutation_pricelists_medical_services_add_perms,
@@ -173,6 +176,13 @@ class UpdateServicesPricelistMutation(CreateOrUpdateItemsOrServicesPricelistMuta
 
     @classmethod
     def async_mutate(cls, user, **data):
+        incoming_pricelist_name = data['name']
+        current_pricelist = ServicesPricelist.objects.get(uuid=data['uuid'])
+        if current_pricelist.name != incoming_pricelist_name:
+            if check_unique_name_services_pricelist(data.get('name')):
+                raise ValidationError(
+                    _("mutation.hf_code_duplicated"))
+
         try:
             cls.do_mutate(
                 MedicalPricelistConfig.gql_mutation_pricelists_medical_services_update_perms,
@@ -244,6 +254,9 @@ class CreateItemsPricelistMutation(CreateOrUpdateItemsOrServicesPricelistMutatio
 
     @classmethod
     def async_mutate(cls, user, **data):
+        if check_unique_name_items_pricelist(data.get('name')):
+            raise ValidationError(
+                _("mutation.pl_name_duplicated"))
         try:
             cls.do_mutate(
                 MedicalPricelistConfig.gql_mutation_pricelists_medical_items_add_perms,
@@ -272,6 +285,12 @@ class UpdateItemsPricelistMutation(CreateOrUpdateItemsOrServicesPricelistMutatio
 
     @classmethod
     def async_mutate(cls, user, **data):
+        incoming_pricelist_name = data['name']
+        current_pricelist = ItemsPricelist.objects.get(uuid=data['uuid'])
+        if current_pricelist.name != incoming_pricelist_name:
+            if check_unique_name_items_pricelist(data.get('name')):
+                raise ValidationError(
+                    _("mutation.hf_code_duplicated"))
         try:
             cls.do_mutate(
                 MedicalPricelistConfig.gql_mutation_pricelists_medical_items_update_perms,
