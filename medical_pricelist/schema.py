@@ -25,7 +25,7 @@ from .gql_mutations import (
 from location.schema import LocationGQLType
 import graphene_django_optimizer as gql_optimizer
 import logging
-from services import check_unique_name_items_pricelist, check_unique_name_services_pricelist
+from .services import check_unique_name_items_pricelist, check_unique_name_services_pricelist
 
 logger = logging.getLogger(__file__)
 

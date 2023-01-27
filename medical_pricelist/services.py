@@ -1,5 +1,5 @@
 from gettext import gettext as _
-from models import ServicesPricelist, ItemsPricelist
+from .models import ServicesPricelist, ItemsPricelist
 
 
 def set_pricelist_deleted(pricelist):
