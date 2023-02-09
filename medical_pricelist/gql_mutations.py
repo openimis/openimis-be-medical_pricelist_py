@@ -41,18 +41,16 @@ def create_or_update_pricelist(
     data, user, pricelist_model, service_or_item_model, detail_model
 ):
     incoming_name = data['name']
-    try:
-        current_service_or_item = pricelist_model.objects.get(uuid=data['uuid'])
-        current_name = pricelist_model.objects.get(uuid=data['uuid']).name
-    except KeyError:
-        current_service_or_item = None
-        current_name = None
+    pricelist_uuid = data.pop("uuid", None)
+    current_pricelist = pricelist_model.objects.first(uuid=pricelist_uuid)
+    current_name = current_pricelist.name if current_pricelist else None
+
     if current_name != incoming_name:
-        if isinstance(current_service_or_item, ServicesPricelist):
+        if isinstance(current_pricelist, ServicesPricelist):
             if check_unique_name_services_pricelist(incoming_name):
                 raise ValidationError(
                     _("mutation.service_name_duplicated"))
-        elif isinstance(current_service_or_item, ItemsPricelist):
+        elif isinstance(current_pricelist, ItemsPricelist):
             if check_unique_name_items_pricelist(incoming_name):
                 raise ValidationError(
                     _("mutation.item_name_duplicated"))
@@ -65,7 +63,6 @@ def create_or_update_pricelist(
     if not data["audit_user_id"]:
         data["audit_user_id"] = user.id_for_audit
 
-    pricelist_uuid = data.pop("uuid", None)
     location_uuid = data.pop("location_id", None)
     data["location"] = (
         Location.objects.get(uuid=location_uuid) if location_uuid else None

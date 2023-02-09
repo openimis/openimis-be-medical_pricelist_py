@@ -228,12 +228,15 @@ class Query(graphene.ObjectType):
 
         return gql_optimizer.query(query.all(), info)
 
-
     def resolve_validate_services_pricelist_name(self, info, **kwargs):
+        if not info.context.user.has_perms(MedicalPricelistConfig.gql_query_pricelists_medical_services_perms):
+            raise PermissionDenied(_("unauthorized"))
         errors = check_unique_name_services_pricelist(name=kwargs['services_pricelist_name'])
         return False if errors else True
 
     def resolve_validate_items_pricelist_name(self, info, **kwargs):
+        if not info.context.user.has_perms(MedicalPricelistConfig.gql_query_pricelists_medical_items_perms):
+            raise PermissionDenied(_("unauthorized"))
         errors = check_unique_name_items_pricelist(name=kwargs['items_pricelist_name'])
         return False if errors else True
 
