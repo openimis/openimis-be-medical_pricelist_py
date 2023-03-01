@@ -1,6 +1,7 @@
 import datetime
 from gettext import gettext as _
 import graphene
+import medical.models
 from core.schema import OpenIMISMutation
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ValidationError, PermissionDenied
@@ -13,7 +14,7 @@ from .models import (
     ServicesPricelistMutation,
     ItemsPricelistMutation,
 )
-from .services import set_pricelist_deleted
+from .services import set_pricelist_deleted, check_unique_name_items_pricelist, check_unique_name_services_pricelist
 from medical.models import Service, Item
 from location.models import Location
 
@@ -39,6 +40,21 @@ class ServicesPricelistInputType(ItemsOrServicesPricelistInputType):
 def create_or_update_pricelist(
     data, user, pricelist_model, service_or_item_model, detail_model
 ):
+    incoming_name = data['name']
+    pricelist_uuid = data.pop("uuid", None)
+    current_pricelist = pricelist_model.objects.first(uuid=pricelist_uuid)
+    current_name = current_pricelist.name if current_pricelist else None
+
+    if current_name != incoming_name:
+        if isinstance(current_pricelist, ServicesPricelist):
+            if check_unique_name_services_pricelist(incoming_name):
+                raise ValidationError(
+                    _("mutation.service_name_duplicated"))
+        elif isinstance(current_pricelist, ItemsPricelist):
+            if check_unique_name_items_pricelist(incoming_name):
+                raise ValidationError(
+                    _("mutation.item_name_duplicated"))
+
     client_mutation_id = data.pop("client_mutation_id", None)
     data.pop("client_mutation_label", None)
     price_overrules = data.pop("price_overrules", None)
@@ -47,7 +63,6 @@ def create_or_update_pricelist(
     if not data["audit_user_id"]:
         data["audit_user_id"] = user.id_for_audit
 
-    pricelist_uuid = data.pop("uuid", None)
     location_uuid = data.pop("location_id", None)
     data["location"] = (
         Location.objects.get(uuid=location_uuid) if location_uuid else None
