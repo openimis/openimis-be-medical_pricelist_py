@@ -42,7 +42,7 @@ def create_or_update_pricelist(
 ):
     incoming_name = data['name']
     pricelist_uuid = data.pop("uuid", None)
-    current_pricelist = pricelist_model.objects.first(uuid=pricelist_uuid)
+    current_pricelist = pricelist_model.objects.filter(uuid=pricelist_uuid).first()
     current_name = current_pricelist.name if current_pricelist else None
 
     if current_name != incoming_name:
