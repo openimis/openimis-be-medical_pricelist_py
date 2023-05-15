@@ -70,6 +70,8 @@ def create_or_update_pricelist(
 
     if pricelist_uuid:
         pricelist = pricelist_model.objects.get(uuid=pricelist_uuid)
+        if pricelist.validity_to:
+            raise ValidationError("User can not edit historical data")
         for (key, value) in data.items():
             setattr(pricelist, key, value)
     else:
