@@ -45,8 +45,7 @@ def add_service_to_hf_pricelist(service, hf_id=18, custom_props={}):
         }
     )
 
-def update_service_in_hf_pricelist(service_id, custom_props={}):
-    service_pricelist_detail = ServicesPricelistDetail.objects.get(service_id=service_id)
+def update_pricelist_service_detail_in_hf_pricelist(service_pricelist_detail, custom_props={}):
     service_pricelist_detail.save_history()
     for key, value in custom_props.items():
         if hasattr(service_pricelist_detail, key):
@@ -66,8 +65,7 @@ def add_item_to_hf_pricelist(item, hf_id=18, custom_props={}):
         }
     )
 
-def update_item_in_hf_pricelist(item_id, custom_props={}):
-    item_pricelist_detail = ItemsPricelistDetail.objects.get(item_id=item_id)
+def update_pricelist_item_detail_in_hf_pricelist(item_pricelist_detail, custom_props={}):
     item_pricelist_detail.save_history()
     for key, value in custom_props.items():
         if hasattr(item_pricelist_detail, key):
