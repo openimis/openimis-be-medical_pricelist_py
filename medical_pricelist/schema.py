@@ -5,7 +5,7 @@ from django.utils.translation import gettext as _
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from django.db.models import Q
-from location.models import Location
+from location.models import Location, LocationManager
 from .apps import MedicalPricelistConfig
 from medical.schema import ServiceGQLType
 from .models import (
@@ -196,8 +196,7 @@ class Query(graphene.ObjectType):
         query = ServicesPricelist.objects.filter(*filters).order_by("name")
 
         # Filter according to the user location
-        query = query.filter(
-            Location.build_user_location_filter_query(info.context.user._u))
+        query = LocationManager().build_user_location_filter_query(info.context.user._u, queryset = query)
 
         return gql_optimizer.query(query.all(), info)
 
@@ -223,8 +222,7 @@ class Query(graphene.ObjectType):
         query = ItemsPricelist.objects.filter(*filters).order_by("name")
 
         # Filter according to the user location
-        query = query.filter(
-            Location.build_user_location_filter_query(info.context.user._u))
+        query = LocationManager().build_user_location_filter_query(info.context.user._u, queryset = query)
 
         return gql_optimizer.query(query.all(), info)
 
