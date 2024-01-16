@@ -32,43 +32,13 @@ class MedicalPricelistConfig(AppConfig):
     gql_mutation_pricelists_medical_services_delete_perms = []
     gql_mutation_pricelists_medical_services_duplicate_perms = []
 
-    def _configure_permissions(self, cfg):
-        MedicalPricelistConfig.gql_query_pricelists_perms = cfg[
-            "gql_query_pricelists_perms"
-        ]
-        MedicalPricelistConfig.gql_query_pricelists_medical_items_perms = cfg[
-            "gql_query_pricelists_medical_items_perms"
-        ]
-        MedicalPricelistConfig.gql_mutation_pricelists_medical_items_add_perms = cfg[
-            "gql_mutation_pricelists_medical_items_add_perms"
-        ]
-        MedicalPricelistConfig.gql_mutation_pricelists_medical_items_update_perms = cfg[
-            "gql_mutation_pricelists_medical_items_update_perms"
-        ]
-        MedicalPricelistConfig.gql_mutation_pricelists_medical_items_delete_perms = cfg[
-            "gql_mutation_pricelists_medical_items_delete_perms"
-        ]
-        MedicalPricelistConfig.gql_mutation_pricelists_medical_items_duplicate_perms = (
-            cfg["gql_mutation_pricelists_medical_items_duplicate_perms"]
-        )
-        MedicalPricelistConfig.gql_query_pricelists_medical_services_perms = cfg[
-            "gql_query_pricelists_medical_services_perms"
-        ]
-        MedicalPricelistConfig.gql_mutation_pricelists_medical_services_add_perms = cfg[
-            "gql_mutation_pricelists_medical_services_add_perms"
-        ]
-        MedicalPricelistConfig.gql_mutation_pricelists_medical_services_update_perms = (
-            cfg["gql_mutation_pricelists_medical_services_update_perms"]
-        )
-        MedicalPricelistConfig.gql_mutation_pricelists_medical_services_delete_perms = (
-            cfg["gql_mutation_pricelists_medical_services_delete_perms"]
-        )
-        MedicalPricelistConfig.gql_mutation_pricelists_medical_services_duplicate_perms = cfg[
-            "gql_mutation_pricelists_medical_services_duplicate_perms"
-        ]
+    def __load_config(self, cfg):
+        for field in cfg:
+            if hasattr(MedicalPricelistConfig, field):
+                setattr(MedicalPricelistConfig, field, cfg[field])
 
     def ready(self):
         from core.models import ModuleConfiguration
 
         cfg = ModuleConfiguration.get_or_default(MODULE_NAME, DEFAULT_CFG)
-        self._configure_permissions(cfg)
+        self.__load_config(cfg)

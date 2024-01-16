@@ -16,7 +16,7 @@ class ItemsPricelist(VersionedModel):
     # row_id = models.BinaryField(db_column='RowID', blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'tblPLItems'
 
 
@@ -50,7 +50,7 @@ class ItemsPricelistDetail(VersionedModel, ItemsOrServicesPricelistDetail):
     objects = ItemsOrServicesPricelistDetailManager()
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'tblPLItemsDetail'
 
 
@@ -65,7 +65,7 @@ class ServicesPricelist(VersionedModel):
     # row_id = models.BinaryField(db_column='RowID', blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'tblPLServices'
 
 
@@ -84,7 +84,7 @@ class ServicesPricelistDetail(VersionedModel, ItemsOrServicesPricelistDetail):
     objects = ItemsOrServicesPricelistDetailManager()
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'tblPLServicesDetail'
 
 
