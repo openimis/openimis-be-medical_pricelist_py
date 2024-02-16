@@ -46,20 +46,15 @@ msgstr "Failed to create pricelist"
 msgid "pricelist.mutation.failed_to_update_pricelist"
 msgstr "Failed to update pricelist"
 
-#: medical_pricelist/gql_mutations.py:221
-#: medical_pricelist/gql_mutations.py:320
-msgid "Unauthorized"
-msgstr "User is not authorized for this operation"
-
 #: medical_pricelist/gql_mutations.py:232
 #: medical_pricelist/gql_mutations.py:331
 msgid "pricelist.validation.id_does_not_exist"
 msgstr "ID does not exist"
 
-#: medical_pricelist/services.py:20 medical_pricelist/services.py:20
+#: medical_pricelist/services.py:20 
 #, python-brace-format
-msgid "pricelist.mutation.failed_to_delete_{pricelist.model_prefix}"
-msgstr "Failed to delete {pricelist.model_prefix}"
+msgid "pricelist.mutation.failed_to_delete_pricelist.model_prefix"
+msgstr "Failed to delete pricelist.model_prefix"
 
 #: medical_pricelist/gql_mutations.py:73
 msgid "pricelist.mutation.cannot_edit_historical_data"
