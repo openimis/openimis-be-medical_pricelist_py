@@ -1,4 +1,4 @@
-from gettext import gettext as _
+from django.utils.translation import gettext as _
 from .models import ServicesPricelist, ItemsPricelist
 
 

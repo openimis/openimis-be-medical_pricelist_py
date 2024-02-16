@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-05 10:47+0200\n"
+"POT-Creation-Date: 2024-02-15 18:34+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,50 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: medical_pricelist/schema.py:100
+#: medical_pricelist/gql_mutations.py:143 medical_pricelist/schema.py:147
+#: medical_pricelist/schema.py:154 medical_pricelist/schema.py:159
+#: medical_pricelist/schema.py:182 medical_pricelist/schema.py:207
+#: medical_pricelist/schema.py:231 medical_pricelist/schema.py:237
 msgid "unauthorized"
 msgstr "User not authorized for this operation"
+
+#: medical_pricelist/gql_mutations.py:51
+msgid "mutation.service_name_duplicated"
+msgstr "Service name already exists"
+
+#: medical_pricelist/gql_mutations.py:54
+msgid "mutation.item_name_duplicated"
+msgstr "Item name already exists"
+
+#: medical_pricelist/gql_mutations.py:141
+msgid "mutation.authentication_required"
+msgstr "Authentication required for this action"
+
+#: medical_pricelist/gql_mutations.py:173
+#: medical_pricelist/gql_mutations.py:272
+msgid "pricelist.mutation.failed_to_create_pricelist"
+msgstr "Failed to create pricelist"
+
+#: medical_pricelist/gql_mutations.py:202
+#: medical_pricelist/gql_mutations.py:301
+msgid "pricelist.mutation.failed_to_update_pricelist"
+msgstr "Failed to update pricelist"
+
+#: medical_pricelist/gql_mutations.py:221
+#: medical_pricelist/gql_mutations.py:320
+msgid "Unauthorized"
+msgstr "User is not authorized for this operation"
+
+#: medical_pricelist/gql_mutations.py:232
+#: medical_pricelist/gql_mutations.py:331
+msgid "pricelist.validation.id_does_not_exist"
+msgstr "ID does not exist"
+
+#: medical_pricelist/services.py:20 medical_pricelist/services.py:20
+#, python-brace-format
+msgid "pricelist.mutation.failed_to_delete_{pricelist.model_prefix}"
+msgstr "Failed to delete {pricelist.model_prefix}"
+
+#: medical_pricelist/gql_mutations.py:73
+msgid "pricelist.mutation.cannot_edit_historical_data"
+msgstr "User can not edit historical data"
