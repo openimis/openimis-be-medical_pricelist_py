@@ -1,5 +1,5 @@
 import datetime
-from gettext import gettext as _
+from django.utils.translation import gettext as _
 import graphene
 import medical.models
 from core.schema import OpenIMISMutation
@@ -48,12 +48,10 @@ def create_or_update_pricelist(
     if current_name != incoming_name:
         if isinstance(current_pricelist, ServicesPricelist):
             if check_unique_name_services_pricelist(incoming_name):
-                raise ValidationError(
-                    _("mutation.service_name_duplicated"))
+                raise ValidationError(_("mutation.service_name_duplicated"))
         elif isinstance(current_pricelist, ItemsPricelist):
             if check_unique_name_items_pricelist(incoming_name):
-                raise ValidationError(
-                    _("mutation.item_name_duplicated"))
+                raise ValidationError(_("mutation.item_name_duplicated"))
 
     client_mutation_id = data.pop("client_mutation_id", None)
     data.pop("client_mutation_label", None)
@@ -71,7 +69,8 @@ def create_or_update_pricelist(
     if pricelist_uuid:
         pricelist = pricelist_model.objects.get(uuid=pricelist_uuid)
         if pricelist.validity_to:
-            raise ValidationError("User can not edit historical data")
+            raise ValidationError(
+                _("pricelist.mutation.cannot_edit_historical_data"))
         for (key, value) in data.items():
             setattr(pricelist, key, value)
     else:
