@@ -7,8 +7,11 @@ from medical_pricelist.models import (
 )
 
 
-def create_test_item_pricelist(location_id, custom_props={}):
-    custom_props = {k: v for k, v in custom_props.items() if hasattr(ItemsPricelist, k)}
+def create_test_item_pricelist(location_id, custom_props=None):
+    if custom_props is None:
+        custom_props = {}
+    else:
+        custom_props = {k: v for k, v in custom_props.items() if hasattr(ItemsPricelist, k)}
     obj = ItemsPricelist.objects.create(
         **{
             "name": "test-item-price-list",
@@ -19,13 +22,14 @@ def create_test_item_pricelist(location_id, custom_props={}):
             **custom_props
         }
     )
-    # reseting custom props to avoid having it in next calls
-    custom_props = {}
     return obj
 
 
-def create_test_service_pricelist(location_id, custom_props={}):
-    custom_props = {k: v for k, v in custom_props.items() if hasattr(ServicesPricelist, k)}
+def create_test_service_pricelist(location_id, custom_props=None):
+    if custom_props is None:
+        custom_props = {}
+    else:
+        custom_props = {k: v for k, v in custom_props.items() if hasattr(ServicesPricelist, k)}
     obj =  ServicesPricelist.objects.create(
         **{
             "name": "test-item-price-list",
@@ -36,12 +40,10 @@ def create_test_service_pricelist(location_id, custom_props={}):
             **custom_props
         }
     )
-    # reseting custom props to avoid having it in next calls
-    custom_props = {}
     return obj
 
 
-def add_service_to_hf_pricelist(service, hf_id=18, custom_props={}):
+def add_service_to_hf_pricelist(service, hf_id=18, custom_props=None):
     hf = HealthFacility.objects.get(pk=hf_id)
     hf_pl = hf.services_pricelist
     if not hf_pl:
@@ -49,7 +51,10 @@ def add_service_to_hf_pricelist(service, hf_id=18, custom_props={}):
         HealthFacility.objects.filter(pk=hf_id).update(
             services_pricelist=hf_pl
         )     
-    custom_props = {k: v for k, v in custom_props.items() if hasattr(ItemsPricelistDetail, k)}         
+    if custom_props is None:
+        custom_props = {}
+    else:
+        custom_props = {k: v for k, v in custom_props.items() if hasattr(ItemsPricelistDetail, k)}         
     obj = ServicesPricelistDetail.objects.filter(
         services_pricelist=hf_pl,
         service=service,
@@ -74,21 +79,20 @@ def add_service_to_hf_pricelist(service, hf_id=18, custom_props={}):
                 **custom_props
             }
         )
-        # reseting custom props to avoid having it in next calls
-    custom_props = {}
     return obj
 
-def update_pricelist_service_detail_in_hf_pricelist(service_pricelist_detail, custom_props={}):
+
+def update_pricelist_service_detail_in_hf_pricelist(service_pricelist_detail, custom_props=None):
     service_pricelist_detail.save_history()
-    for key, value in custom_props.items():
-        if hasattr(service_pricelist_detail, key):
-            setattr(service_pricelist_detail, key, value)
-    # reseting custom props to avoid having it in next calls
-    custom_props = {}
+    if custom_props is not None:
+        for key, value in custom_props.items():
+            if hasattr(service_pricelist_detail, key):
+                setattr(service_pricelist_detail, key, value)
+
     return service_pricelist_detail.save()
 
 
-def add_item_to_hf_pricelist(item, hf_id=18, custom_props={}):
+def add_item_to_hf_pricelist(item, hf_id=18, custom_props=None):
     hf = HealthFacility.objects.get(pk=hf_id)
     hf_pl = hf.items_pricelist
     if not hf_pl:
@@ -96,7 +100,10 @@ def add_item_to_hf_pricelist(item, hf_id=18, custom_props={}):
         HealthFacility.objects.filter(pk=hf_id).update(
             items_pricelist=hf_pl
         )
-    custom_props = {k: v for k, v in custom_props.items() if hasattr(ItemsPricelistDetail, k)}         
+    if custom_props is None:
+        custom_props = {}
+    else:
+        custom_props = {k: v for k, v in custom_props.items() if hasattr(ItemsPricelistDetail, k)}         
     obj = ItemsPricelistDetail.objects.filter(
         items_pricelist=hf_pl,
         item=item,
@@ -121,15 +128,13 @@ def add_item_to_hf_pricelist(item, hf_id=18, custom_props={}):
                 **custom_props
             }
         )
-    # reseting custom props to avoid having it in next calls
-    custom_props = {}
     return obj
 
-def update_pricelist_item_detail_in_hf_pricelist(item_pricelist_detail, custom_props={}):
-    item_pricelist_detail.save_history()
-    for key, value in custom_props.items():
-        if hasattr(item_pricelist_detail, key):
-            setattr(item_pricelist_detail, key, value)
-    # reseting custom props to avoid having it in next calls
-    custom_props = {}
+
+def update_pricelist_item_detail_in_hf_pricelist(item_pricelist_detail, custom_props=None):
+    if custom_props is not None:
+        item_pricelist_detail.save_history()
+        for key, value in custom_props.items():
+            if hasattr(item_pricelist_detail, key):
+                setattr(item_pricelist_detail, key, value)
     return item_pricelist_detail.save()
