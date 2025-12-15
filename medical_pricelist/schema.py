@@ -106,7 +106,7 @@ def prices(element, parent, child, element_id, **kwargs):
     if list_id is None:
         return []
     element_list = element.objects.filter(
-        Q(**{parent: list_id}), *filter_validity(**kwargs))
+        Q(**{parent: list_id}), *element.filter_validity(**kwargs))
     return [
         PriceCompactGQLType(id=getattr(e, child), p=e.price_overrule)
         for e in element_list.all()
@@ -183,7 +183,7 @@ class Query(graphene.ObjectType):
         filters = []
         show_history = kwargs.get("show_history", False)
         if not show_history:
-            filters = [*filter_validity(**kwargs)]
+            filters = [*ServicesPricelist.filter_validity(**kwargs)]
 
         location_uuid = kwargs.get("location_uuid")
         if location_uuid is not None:
@@ -208,7 +208,7 @@ class Query(graphene.ObjectType):
         filters = []
         show_history = kwargs.get("show_history", False)
         if not show_history:
-            filters = [*filter_validity(**kwargs)]
+            filters = [*ItemsPricelist.filter_validity(**kwargs)]
 
         location_uuid = kwargs.get("location_uuid")
         if location_uuid is not None:
