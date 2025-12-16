@@ -30,7 +30,7 @@ def create_test_service_pricelist(location_id, custom_props=None):
         custom_props = {}
     else:
         custom_props = {k: v for k, v in custom_props.items() if hasattr(ServicesPricelist, k)}
-    obj =  ServicesPricelist.objects.create(
+    obj = ServicesPricelist.objects.create(
         **{
             "name": "test-item-price-list",
             "location_id": location_id,
@@ -50,11 +50,11 @@ def add_service_to_hf_pricelist(service, hf_id, custom_props=None):
         hf_pl = create_test_service_pricelist(hf.location_id)
         hf.update(
             services_pricelist=hf_pl
-        )     
+        )
     if custom_props is None:
         custom_props = {}
     else:
-        custom_props = {k: v for k, v in custom_props.items() if hasattr(ItemsPricelistDetail, k)}         
+        custom_props = {k: v for k, v in custom_props.items() if hasattr(ItemsPricelistDetail, k)}
     obj = ServicesPricelistDetail.objects.filter(
         services_pricelist=hf_pl,
         service=service,
@@ -103,7 +103,7 @@ def add_item_to_hf_pricelist(item, hf_id, custom_props=None):
     if custom_props is None:
         custom_props = {}
     else:
-        custom_props = {k: v for k, v in custom_props.items() if hasattr(ItemsPricelistDetail, k)}         
+        custom_props = {k: v for k, v in custom_props.items() if hasattr(ItemsPricelistDetail, k)}
     obj = ItemsPricelistDetail.objects.filter(
         items_pricelist=hf_pl,
         item=item,

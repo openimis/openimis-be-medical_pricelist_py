@@ -1,5 +1,5 @@
 import graphene
-from core import prefix_filterset, filter_validity, ExtendedConnection
+from core import prefix_filterset, ExtendedConnection
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import gettext as _
 from graphene_django import DjangoObjectType
@@ -196,7 +196,7 @@ class Query(graphene.ObjectType):
         query = ServicesPricelist.objects.filter(*filters).order_by("name")
 
         # Filter according to the user location
-        query = LocationManager().build_user_location_filter_query(info.context.user._u, queryset = query)
+        query = LocationManager().build_user_location_filter_query(info.context.user._u, queryset=query)
 
         return gql_optimizer.query(query.all(), info)
 
@@ -222,7 +222,7 @@ class Query(graphene.ObjectType):
         query = ItemsPricelist.objects.filter(*filters).order_by("name")
 
         # Filter according to the user location
-        query = LocationManager().build_user_location_filter_query(info.context.user._u, queryset = query)
+        query = LocationManager().build_user_location_filter_query(info.context.user._u, queryset=query)
 
         return gql_optimizer.query(query.all(), info)
 
