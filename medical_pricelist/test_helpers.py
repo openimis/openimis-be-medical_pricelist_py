@@ -96,7 +96,7 @@ def update_pricelist_service_detail_in_hf_pricelist(service_pricelist_detail, cu
 def add_item_to_hf_pricelist(item, hf=None, custom_props=None):
     if not hf:
         hf = create_test_health_facility()
-    hf_pl = hf.services_pricelist
+    hf_pl = hf.items_pricelist
     if not hf_pl:
         hf_pl = create_test_item_pricelist(hf.location_id)
         hf.update(
