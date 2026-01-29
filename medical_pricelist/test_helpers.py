@@ -1,4 +1,4 @@
-from location.models import HealthFacility
+from location.test_helpers import create_test_health_facility
 from medical_pricelist.models import (
     ItemsPricelist,
     ServicesPricelist,
@@ -43,8 +43,9 @@ def create_test_service_pricelist(location_id, custom_props=None):
     return obj
 
 
-def add_service_to_hf_pricelist(service, hf_id, custom_props=None):
-    hf = HealthFacility.objects.get(pk=hf_id)
+def add_service_to_hf_pricelist(service, hf=None, custom_props=None):
+    if not hf:
+        hf = create_test_health_facility()
     hf_pl = hf.services_pricelist
     if not hf_pl:
         hf_pl = create_test_service_pricelist(hf.location_id)
@@ -92,12 +93,13 @@ def update_pricelist_service_detail_in_hf_pricelist(service_pricelist_detail, cu
     return service_pricelist_detail.save()
 
 
-def add_item_to_hf_pricelist(item, hf_id, custom_props=None):
-    hf = HealthFacility.objects.get(pk=hf_id)
-    hf_pl = hf.items_pricelist
+def add_item_to_hf_pricelist(item, hf=None, custom_props=None):
+    if not hf:
+        hf = create_test_health_facility()
+    hf_pl = hf.services_pricelist
     if not hf_pl:
         hf_pl = create_test_item_pricelist(hf.location_id)
-        HealthFacility.objects.get(pk=hf_id).update(
+        hf.update(
             items_pricelist=hf_pl
         )
     if custom_props is None:
