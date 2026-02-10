@@ -1,7 +1,6 @@
 import datetime
 from gettext import gettext as _
 import graphene
-import medical.models
 from core.schema import OpenIMISMutation
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ValidationError, PermissionDenied

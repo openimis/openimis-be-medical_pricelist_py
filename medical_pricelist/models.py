@@ -38,8 +38,11 @@ class ItemsOrServicesPricelistDetail:
 
 class ItemsPricelistDetail(VersionedModel, ItemsOrServicesPricelistDetail):
     id = models.AutoField(db_column='PLItemDetailID', primary_key=True)
-    items_pricelist = models.ForeignKey(ItemsPricelist, on_delete=models.CASCADE, db_column="PLItemID",
-                                       related_name='details')
+    items_pricelist = models.ForeignKey(
+        ItemsPricelist,
+        on_delete=models.CASCADE,
+        db_column="PLItemID",
+        related_name='details')
     item = models.ForeignKey(medical_models.Item, db_column="ItemID", on_delete=models.CASCADE,
                              related_name='pricelist_details')
     price_overrule = models.DecimalField(db_column="PriceOverule", max_digits=18, decimal_places=2, blank=True, null=True)
@@ -71,8 +74,11 @@ class ServicesPricelist(VersionedModel):
 
 class ServicesPricelistDetail(VersionedModel, ItemsOrServicesPricelistDetail):
     id = models.AutoField(db_column='PLServiceDetailID', primary_key=True)
-    services_pricelist = models.ForeignKey(ServicesPricelist, on_delete=models.CASCADE, db_column="PLServiceID",
-                                          related_name='details')
+    services_pricelist = models.ForeignKey(
+        ServicesPricelist,
+        on_delete=models.CASCADE,
+        db_column="PLServiceID",
+        related_name='details')
     service = models.ForeignKey(medical_models.Service, db_column="ServiceID", on_delete=models.CASCADE,
                                 related_name='pricelist_details')
     price_overrule = models.DecimalField(db_column="PriceOverule", max_digits=18, decimal_places=2, blank=True, null=True)
