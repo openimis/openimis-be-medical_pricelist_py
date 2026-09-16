@@ -26,6 +26,7 @@ from location.schema import LocationGQLType
 import graphene_django_optimizer as gql_optimizer
 import logging
 from .services import check_unique_name_items_pricelist, check_unique_name_services_pricelist
+from core.gql import ScopedQuerysetMixin
 
 logger = logging.getLogger(__file__)
 
@@ -33,7 +34,7 @@ logger = logging.getLogger(__file__)
 ServiceGQLType.fields = ["id", "name"]
 
 
-class ItemsPricelistGQLType(DjangoObjectType):
+class ItemsPricelistGQLType(ScopedQuerysetMixin, DjangoObjectType):
     class Meta:
         model = ItemsPricelist
         interfaces = (graphene.relay.Node,)
@@ -62,7 +63,7 @@ class ItemsPricelistDetailGQLType(DjangoObjectType):
         connection_class = ExtendedConnection
 
 
-class ServicesPricelistGQLType(DjangoObjectType):
+class ServicesPricelistGQLType(ScopedQuerysetMixin, DjangoObjectType):
     class Meta:
         model = ServicesPricelist
         interfaces = (graphene.relay.Node,)
