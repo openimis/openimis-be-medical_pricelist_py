@@ -26,6 +26,7 @@ from location.schema import LocationGQLType
 import graphene_django_optimizer as gql_optimizer
 import logging
 from .services import check_unique_name_items_pricelist, check_unique_name_services_pricelist
+from core.gql import ScopedQuerysetMixin
 
 logger = logging.getLogger(__file__)
 
@@ -33,7 +34,7 @@ logger = logging.getLogger(__file__)
 ServiceGQLType.fields = ["id", "name"]
 
 
-class ItemsPricelistGQLType(DjangoObjectType):
+class ItemsPricelistGQLType(ScopedQuerysetMixin, DjangoObjectType):
     class Meta:
         model = ItemsPricelist
         interfaces = (graphene.relay.Node,)
@@ -62,7 +63,7 @@ class ItemsPricelistDetailGQLType(DjangoObjectType):
         connection_class = ExtendedConnection
 
 
-class ServicesPricelistGQLType(DjangoObjectType):
+class ServicesPricelistGQLType(ScopedQuerysetMixin, DjangoObjectType):
     class Meta:
         model = ServicesPricelist
         interfaces = (graphene.relay.Node,)
@@ -146,17 +147,39 @@ class Query(graphene.ObjectType):
         if info.context.user.is_anonymous:
             raise PermissionDenied(_("unauthorized"))
         if services_pricelist_id or items_pricelist_id:
+            # The refusal was written `if hf and hf.x != id: raise`, so it **never**
+            # fired for an account without a health facility:
+            # `User.get_health_facility()` returns `None` as soon as there is neither
+            # a `claim_admin` nor an `i_user.health_facility` - the common case for a
+            # back-office account. Every authenticated account could therefore read
+            # any pricelist at all by enumerating sequential ids. The intended rule is
+            # the one the comment above describes: the right to browse, or else the
+            # pricelist of **one's own** health facility - hence refusal by default,
+            # including when `hf` is `None`.
+            #
+            # `gql_query_pricelists_perms` (121200) was declared, catalogued, and read
+            # nowhere: here is where it belongs, as the general read right on
+            # pricelists.
+            #
+            # A consequence to own: a role that used to read a pricelist without
+            # holding 121200 nor the right of the type concerned loses that access.
+            # That is precisely the hole being closed; the migration path is to grant
+            # it 121200.
             hf = info.context.user.get_health_facility()
-            if services_pricelist_id and not info.context.user.has_perms(
-                MedicalPricelistConfig.gql_query_pricelists_medical_services_perms
-            ):
-                if hf and hf.services_pricelist_id != services_pricelist_id:
-                    raise PermissionDenied(_("unauthorized"))
-            if items_pricelist_id and not info.context.user.has_perms(
-                MedicalPricelistConfig.gql_query_pricelists_medical_items_perms
-            ):
-                if hf and hf.items_pricelist_id != items_pricelist_id:
-                    raise PermissionDenied(_("unauthorized"))
+            user = info.context.user
+            if user.has_perms(MedicalPricelistConfig.gql_query_pricelists_perms):
+                pass
+            else:
+                if services_pricelist_id and not user.has_perms(
+                    MedicalPricelistConfig.gql_query_pricelists_medical_services_perms
+                ):
+                    if not (hf and hf.services_pricelist_id == services_pricelist_id):
+                        raise PermissionDenied(_("unauthorized"))
+                if items_pricelist_id and not user.has_perms(
+                    MedicalPricelistConfig.gql_query_pricelists_medical_items_perms
+                ):
+                    if not (hf and hf.items_pricelist_id == items_pricelist_id):
+                        raise PermissionDenied(_("unauthorized"))
 
         return PricelistsGQLType(
             services=prices(
