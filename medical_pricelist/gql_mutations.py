@@ -71,6 +71,10 @@ def create_or_update_pricelist(
         pricelist = pricelist_model.objects.get(uuid=pricelist_uuid)
         if pricelist.validity_to:
             raise ValidationError("User can not edit historical data")
+        # Keep the previous version: the copy gets a new id (legacy_id = live id),
+        # so the details keep pointing at the live row.
+        pricelist.save_history()
+        pricelist.validity_from = datetime.datetime.now()
         for (key, value) in data.items():
             setattr(pricelist, key, value)
     else:
