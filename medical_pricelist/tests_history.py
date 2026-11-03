@@ -71,13 +71,14 @@ class PricelistUpdateHistoryTest(openIMISGraphQLTestCase):
         histo = history.get()
         self.assertEqual(histo.name, old_name, "the historical row must keep the previous name")
         self.assertIsNotNone(histo.validity_to, "the historical row must be closed")
-        self.assertNotEqual(histo.uuid, pricelist.uuid)
+        # uuid is a CharField on a uuid column: it reads back as UUID or str (OP-3315)
+        self.assertNotEqual(str(histo.uuid), str(pricelist.uuid))
 
         live = pricelist_model.objects.get(id=live_id)
         self.assertEqual(live.name, new_name)
         self.assertIsNone(live.validity_to)
         self.assertIsNone(live.legacy_id)
-        self.assertEqual(live.uuid, pricelist.uuid)
+        self.assertEqual(str(live.uuid), str(pricelist.uuid))
 
         live_details = detail_model.objects.filter(validity_to__isnull=True, **{
             f"{detail_model.model_prefix}__uuid": element.uuid,
