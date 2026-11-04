@@ -3,9 +3,12 @@ from django.db import models
 from core import fields
 from core.models import VersionedModel, UUIDModel, ObjectMutation, MutationLog
 from medical import models as medical_models
+from core.models import LocationScope
 
 
 class ItemsPricelist(VersionedModel):
+    row_scope = LocationScope("location")
+
     id = models.AutoField(db_column='PLItemID', primary_key=True)
     uuid = models.CharField(db_column='PLItemUUID', max_length=36, default=uuid.uuid4, unique=True)
     name = models.CharField(db_column='PLItemName', max_length=100)
@@ -58,6 +61,8 @@ class ItemsPricelistDetail(VersionedModel, ItemsOrServicesPricelistDetail):
 
 
 class ServicesPricelist(VersionedModel):
+    row_scope = LocationScope("location")
+
     id = models.AutoField(db_column='PLServiceID', primary_key=True)
     uuid = models.CharField(db_column='PLServiceUUID', max_length=36, default=uuid.uuid4, unique=True)
     name = models.CharField(db_column='PLServName', max_length=100)

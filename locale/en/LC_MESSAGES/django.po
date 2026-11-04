@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-05 10:47+0200\n"
+"POT-Creation-Date: 2026-09-17 16:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,43 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: medical_pricelist/schema.py:100
+#: medical_pricelist/gql_mutations.py:51
+msgid "mutation.service_name_duplicated"
+msgstr ""
+
+#: medical_pricelist/gql_mutations.py:55
+msgid "mutation.item_name_duplicated"
+msgstr ""
+
+#: medical_pricelist/gql_mutations.py:141
+msgid "mutation.authentication_required"
+msgstr ""
+
+#: medical_pricelist/gql_mutations.py:143 medical_pricelist/schema.py:148
+#: medical_pricelist/schema.py:155 medical_pricelist/schema.py:160
+#: medical_pricelist/schema.py:183 medical_pricelist/schema.py:208
+#: medical_pricelist/schema.py:232 medical_pricelist/schema.py:238
 msgid "unauthorized"
 msgstr "User not authorized for this operation"
+
+#: medical_pricelist/gql_mutations.py:173
+#: medical_pricelist/gql_mutations.py:272
+msgid "pricelist.mutation.failed_to_create_pricelist"
+msgstr ""
+
+#: medical_pricelist/gql_mutations.py:202
+#: medical_pricelist/gql_mutations.py:301
+msgid "pricelist.mutation.failed_to_update_pricelist"
+msgstr ""
+
+#: medical_pricelist/gql_mutations.py:221
+#: medical_pricelist/gql_mutations.py:320
+#, fuzzy
+#| msgid "unauthorized"
+msgid "Unauthorized"
+msgstr "User not authorized for this operation"
+
+#: medical_pricelist/gql_mutations.py:232
+#: medical_pricelist/gql_mutations.py:331
+msgid "pricelist.validation.id_does_not_exist"
+msgstr ""
