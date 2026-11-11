@@ -49,9 +49,11 @@ class ItemsPricelistGQLType(ScopedQuerysetMixin, DjangoObjectType):
         connection_class = ExtendedConnection
 
 
-class ItemsPricelistDetailGQLType(DjangoObjectType):
+class ItemsPricelistDetailGQLType(ScopedQuerysetMixin, DjangoObjectType):
+    # Row security comes from the model (ParentScope on the pricelist); hiding
+    # historical lines is GraphQL shaping, applied after it.
     @classmethod
-    def get_queryset(cls, queryset, info):
+    def refine_queryset(cls, queryset, info):
         return queryset.filter(validity_to=None)
 
     class Meta:
@@ -78,9 +80,11 @@ class ServicesPricelistGQLType(ScopedQuerysetMixin, DjangoObjectType):
         connection_class = ExtendedConnection
 
 
-class ServicesPricelistDetailGQLType(DjangoObjectType):
+class ServicesPricelistDetailGQLType(ScopedQuerysetMixin, DjangoObjectType):
+    # Row security comes from the model (ParentScope on the pricelist); hiding
+    # historical lines is GraphQL shaping, applied after it.
     @classmethod
-    def get_queryset(cls, queryset, info):
+    def refine_queryset(cls, queryset, info):
         return queryset.filter(validity_to=None)
 
     class Meta:
@@ -102,12 +106,20 @@ class PricelistsGQLType(graphene.ObjectType):
     items = graphene.List(PriceCompactGQLType)
 
 
-def prices(element, parent, child, element_id, **kwargs):
+def prices(element, parent, child, element_id, user=None, **kwargs):
+    """Price lines of one pricelist.
+
+    ``user`` narrows them to the pricelists that user may see. ``None`` skips
+    row security, and is reserved to the caller's own health facility
+    pricelist, which its staff read whatever the pricelist's location.
+    """
     list_id = kwargs.get(element_id)
     if list_id is None:
         return []
     element_list = element.objects.filter(
         Q(**{parent: list_id}), *element.filter_validity(**kwargs))
+    if user is not None:
+        element_list = element.get_queryset(element_list, user)
     return [
         PriceCompactGQLType(id=getattr(e, child), p=e.price_overrule)
         for e in element_list.all()
@@ -146,6 +158,14 @@ class Query(graphene.ObjectType):
         # and don't have the right to browse all pricelists, we need to verify that they do have access to that PL
         if info.context.user.is_anonymous:
             raise PermissionDenied(_("unauthorized"))
+        user = info.context.user
+        hf = user.get_health_facility()
+        # The prices are read through row security, except for the pricelists of
+        # the user's own health facility, which its staff need for claim entry
+        # even when the pricelist sits at a level above their location (a
+        # region-wide pricelist for a district facility, say).
+        own_services = bool(hf and services_pricelist_id and hf.services_pricelist_id == services_pricelist_id)
+        own_items = bool(hf and items_pricelist_id and hf.items_pricelist_id == items_pricelist_id)
         if services_pricelist_id or items_pricelist_id:
             # The refusal was written `if hf and hf.x != id: raise`, so it **never**
             # fired for an account without a health facility:
@@ -165,8 +185,6 @@ class Query(graphene.ObjectType):
             # holding 121200 nor the right of the type concerned loses that access.
             # That is precisely the hole being closed; the migration path is to grant
             # it 121200.
-            hf = info.context.user.get_health_facility()
-            user = info.context.user
             if user.has_perms(MedicalPricelistConfig.gql_query_pricelists_perms):
                 pass
             else:
@@ -187,6 +205,7 @@ class Query(graphene.ObjectType):
                 "services_pricelist",
                 "service_id",
                 "services_pricelist_id",
+                user=None if own_services else user,
                 services_pricelist_id=services_pricelist_id,
             ),
             items=prices(
@@ -194,6 +213,7 @@ class Query(graphene.ObjectType):
                 "items_pricelist",
                 "item_id",
                 "items_pricelist_id",
+                user=None if own_items else user,
                 items_pricelist_id=items_pricelist_id,
             ),
         )

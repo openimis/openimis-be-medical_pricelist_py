@@ -3,7 +3,7 @@ from django.db import models
 from core import fields
 from core.models import VersionedModel, UUIDModel, ObjectMutation, MutationLog
 from medical import models as medical_models
-from core.models import LocationScope
+from core.models import LocationScope, ParentScope
 
 
 class ItemsPricelist(VersionedModel):
@@ -40,6 +40,9 @@ class ItemsOrServicesPricelistDetail:
 
 
 class ItemsPricelistDetail(VersionedModel, ItemsOrServicesPricelistDetail):
+    # A price line is exactly as visible as its pricelist.
+    row_scope = ParentScope("items_pricelist")
+
     id = models.AutoField(db_column='PLItemDetailID', primary_key=True)
     items_pricelist = models.ForeignKey(
         ItemsPricelist,
@@ -78,6 +81,9 @@ class ServicesPricelist(VersionedModel):
 
 
 class ServicesPricelistDetail(VersionedModel, ItemsOrServicesPricelistDetail):
+    # A price line is exactly as visible as its pricelist.
+    row_scope = ParentScope("services_pricelist")
+
     id = models.AutoField(db_column='PLServiceDetailID', primary_key=True)
     services_pricelist = models.ForeignKey(
         ServicesPricelist,
