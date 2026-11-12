@@ -15,7 +15,8 @@ from .models import (
 )
 from .services import set_pricelist_deleted, check_unique_name_items_pricelist, check_unique_name_services_pricelist
 from medical.models import Service, Item
-from location.models import Location
+from core.models import target_queryset
+from location.models import Location, LocationManager
 
 
 class DetailPriceOverruleType(graphene.InputObjectType):
@@ -36,12 +37,29 @@ class ServicesPricelistInputType(ItemsOrServicesPricelistInputType):
     pass
 
 
+def _location_in_scope(user, location_uuid):
+    """The location ``location_uuid`` names, provided ``user`` may use it.
+
+    A pricelist written at a location outside the user's districts would be a
+    row its author cannot read back, so the location is checked against the
+    same district scope as reads. An unknown uuid is refused the same way, so
+    the answer does not reveal whether the location exists.
+    """
+    location = Location.objects.filter(uuid=location_uuid).first()
+    if location is None or not LocationManager().is_allowed(user, [location.id]):
+        raise PermissionDenied(_("unauthorized"))
+    return location
+
+
 def create_or_update_pricelist(
     data, user, pricelist_model, service_or_item_model, detail_model
 ):
     incoming_name = data['name']
     pricelist_uuid = data.pop("uuid", None)
-    current_pricelist = pricelist_model.objects.filter(uuid=pricelist_uuid).first()
+    # Only a pricelist the user may read can be updated.
+    current_pricelist = target_queryset(pricelist_model, user).filter(uuid=pricelist_uuid).first()
+    if pricelist_uuid and current_pricelist is None:
+        raise pricelist_model.DoesNotExist()
     current_name = current_pricelist.name if current_pricelist else None
 
     if current_name != incoming_name:
@@ -64,11 +82,11 @@ def create_or_update_pricelist(
 
     location_uuid = data.pop("location_id", None)
     data["location"] = (
-        Location.objects.get(uuid=location_uuid) if location_uuid else None
+        _location_in_scope(user, location_uuid) if location_uuid else None
     )
 
     if pricelist_uuid:
-        pricelist = pricelist_model.objects.get(uuid=pricelist_uuid)
+        pricelist = current_pricelist
         if pricelist.validity_to:
             raise ValidationError("User can not edit historical data")
         # Keep the previous version: the copy gets a new id (legacy_id = live id),
@@ -175,7 +193,7 @@ class CreateServicesPricelistMutation(CreateOrUpdateItemsOrServicesPricelistMuta
             return [
                 {
                     "message": _("pricelist.mutation.failed_to_create_pricelist")
-                    % {"uuid": data["uuid"]},
+                    % {"uuid": data.get("uuid")},
                     "detail": str(exc),
                 }
             ]
@@ -212,7 +230,7 @@ class UpdateServicesPricelistMutation(CreateOrUpdateItemsOrServicesPricelistMuta
 
 class DeleteServicesPricelistMutation(OpenIMISMutation):
     _mutation_module = "medical_pricelist"
-    _mutation_class = "UpdateServicesPricelistMutation"
+    _mutation_class = "DeleteServicesPricelistMutation"
 
     class Input(OpenIMISMutation.Input):
         uuids = graphene.List(graphene.UUID)
@@ -225,7 +243,8 @@ class DeleteServicesPricelistMutation(OpenIMISMutation):
             raise PermissionDenied(_("Unauthorized"))
         errors = []
         for uuid in data["uuids"]:
-            pricelist = ServicesPricelist.objects.filter(uuid=uuid).first()
+            # Only a pricelist the user may read can be deleted.
+            pricelist = target_queryset(ServicesPricelist, user).filter(uuid=uuid).first()
             if pricelist is None:
                 errors.append(
                     {
@@ -233,9 +252,8 @@ class DeleteServicesPricelistMutation(OpenIMISMutation):
                         "list": [
                             {
                                 "message": _(
-                                    "pricelist.validation.id_does_not_exist",
-                                    {"id": uuid},
-                                )
+                                    "pricelist.validation.id_does_not_exist"
+                                ) % {"id": uuid}
                             }
                         ],
                     }
@@ -274,7 +292,7 @@ class CreateItemsPricelistMutation(CreateOrUpdateItemsOrServicesPricelistMutatio
             return [
                 {
                     "message": _("pricelist.mutation.failed_to_create_pricelist")
-                    % {"uuid": data["uuid"]},
+                    % {"uuid": data.get("uuid")},
                     "detail": str(exc),
                 }
             ]
@@ -311,7 +329,7 @@ class UpdateItemsPricelistMutation(CreateOrUpdateItemsOrServicesPricelistMutatio
 
 class DeleteItemsPricelistMutation(OpenIMISMutation):
     _mutation_module = "medical_pricelist"
-    _mutation_class = "UpdateItemsPricelistMutation"
+    _mutation_class = "DeleteItemsPricelistMutation"
 
     class Input(OpenIMISMutation.Input):
         uuids = graphene.List(graphene.UUID)
@@ -324,7 +342,8 @@ class DeleteItemsPricelistMutation(OpenIMISMutation):
             raise PermissionDenied(_("Unauthorized"))
         errors = []
         for uuid in data["uuids"]:
-            pricelist = ItemsPricelist.objects.filter(uuid=uuid).first()
+            # Only a pricelist the user may read can be deleted.
+            pricelist = target_queryset(ItemsPricelist, user).filter(uuid=uuid).first()
             if pricelist is None:
                 errors.append(
                     {
@@ -332,9 +351,8 @@ class DeleteItemsPricelistMutation(OpenIMISMutation):
                         "list": [
                             {
                                 "message": _(
-                                    "pricelist.validation.id_does_not_exist",
-                                    {"id": uuid},
-                                )
+                                    "pricelist.validation.id_does_not_exist"
+                                ) % {"id": uuid}
                             }
                         ],
                     }
