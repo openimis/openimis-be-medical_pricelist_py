@@ -7,6 +7,9 @@ from core.models import LocationScope
 
 
 class ItemsPricelist(VersionedModel):
+    # Versions carry a business meaning: a validity date picks the one valid then.
+    business_versioned = True
+
     row_scope = LocationScope("location")
 
     id = models.AutoField(db_column='PLItemID', primary_key=True)
@@ -40,6 +43,9 @@ class ItemsOrServicesPricelistDetail:
 
 
 class ItemsPricelistDetail(VersionedModel, ItemsOrServicesPricelistDetail):
+    # Versions carry a business meaning: a validity date picks the one valid then.
+    business_versioned = True
+
     id = models.AutoField(db_column='PLItemDetailID', primary_key=True)
     items_pricelist = models.ForeignKey(
         ItemsPricelist,
@@ -61,6 +67,9 @@ class ItemsPricelistDetail(VersionedModel, ItemsOrServicesPricelistDetail):
 
 
 class ServicesPricelist(VersionedModel):
+    # Versions carry a business meaning: a validity date picks the one valid then.
+    business_versioned = True
+
     row_scope = LocationScope("location")
 
     id = models.AutoField(db_column='PLServiceID', primary_key=True)
@@ -78,6 +87,9 @@ class ServicesPricelist(VersionedModel):
 
 
 class ServicesPricelistDetail(VersionedModel, ItemsOrServicesPricelistDetail):
+    # Versions carry a business meaning: a validity date picks the one valid then.
+    business_versioned = True
+
     id = models.AutoField(db_column='PLServiceDetailID', primary_key=True)
     services_pricelist = models.ForeignKey(
         ServicesPricelist,
